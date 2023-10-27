@@ -1,0 +1,9 @@
+go 1.21.3
+
+use (
+	"./17 - Aplicação de Linha de Comando"
+	"./19 - Testes Automatizados/1 - Introdução"
+	"./19 - Testes Automatizados/2 - Teste Avançado"
+	"./23 - Banco de Dados"
+	"./24 - Crud Básico"
+)
