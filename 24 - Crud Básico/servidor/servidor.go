@@ -113,7 +113,6 @@ func BuscarUsuarios(w http.ResponseWriter, r *http.Request) {
 		message(w, "Erro ao converter os usuários para JSON")
 		return
 	}
-
 }
 
 // BuscarUsuario traz um usuários específico salvo no banco de dado
@@ -162,5 +161,87 @@ func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
 		message(w, "Erro ao converter o usuário para JSON!")
 		return
 	}
+}
 
+// AtualizarUsuario altera os dados de um usuário no banco de dados
+func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
+	parametro := mux.Vars(r)
+
+	ID, erro := strconv.ParseUint(parametro["id"], 10, 32)
+	if erro != nil {
+		messageServer(w, http.StatusBadRequest)
+		message(w, "Erro ao converter o parâmetro para inteiro!")
+		return
+	}
+
+	corpodaRequisicao, erro := io.ReadAll(r.Body)
+	if erro != nil {
+		messageServer(w, http.StatusBadRequest)
+		message(w, "Erro ao ler o corpo da requisição!")
+		return
+	}
+
+	var usuario usuario
+	if erro := json.Unmarshal(corpodaRequisicao, &usuario); erro != nil {
+		messageServer(w, http.StatusBadRequest)
+		message(w, "Erro ao converter um usuário para struct")
+		return
+	}
+
+	db, erro := banco.Conectar()
+	if erro != nil {
+		messageServer(w, http.StatusInternalServerError)
+		message(w, "Erro ao conectar no banco de dados!")
+		return
+	}
+	defer db.Close()
+
+	statement, erro := db.Prepare("update usuarios set nome = ?, email = ? where id = ?")
+	if erro != nil {
+		messageServer(w, http.StatusBadRequest)
+		message(w, "Erro ao criar o statement!")
+		return
+	}
+	defer statement.Close()
+
+	if _, erro := statement.Exec(usuario.Nome, usuario.Email, ID); erro != nil {
+		message(w, "Erro ao atualizar o usuário!")
+		return
+	}
+	messageServer(w, http.StatusNoContent)
+}
+
+// DeleterUsuario exclui um usuário específico no banco de dados
+func DeleterUsuario(w http.ResponseWriter, r *http.Request) {
+	parametro := mux.Vars(r)
+
+	ID, erro := strconv.ParseUint(parametro["id"], 10, 32)
+	if erro != nil {
+		messageServer(w, http.StatusBadRequest)
+		message(w, "Erro ao converter o parâmetro para inteiro!")
+		return
+	}
+
+	db, erro := banco.Conectar()
+	if erro != nil {
+		messageServer(w, http.StatusInternalServerError)
+		message(w, "Erro ao conectar no banco de dados!")
+		return
+	}
+	defer db.Close()
+
+	statement, erro := db.Prepare("delete from usuarios where id = ?")
+	if erro != nil {
+		messageServer(w, http.StatusBadRequest)
+		message(w, "Erro ao criar o statement!")
+		return
+	}
+	defer statement.Close()
+
+	if _, erro := statement.Exec(ID); erro != nil {
+		message(w, "Erro ao deletar o usuário!")
+		return
+	}
+
+	messageServer(w, http.StatusNoContent)
 }
