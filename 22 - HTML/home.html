@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        h2 {
+            color: blueviolet;
+        }
+
+        marquee {
+            color: aquamarine;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <h2>Página Principal</h2>
+
+    <marquee>
+        <h4>Seja bem vindo, {{.Nome }}</h4>
+    </marquee>
+
+    <button id="botao">Clique aqui!</button>
+
+    <script>
+        var botao = document.getElementById("botao");
+        botao.onclick = function () {
+            alert("Botão clicado com sucesso!")
+        }
+    </script>
+</body>
+
+</html>
